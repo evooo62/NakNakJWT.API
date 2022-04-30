@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace JWTAuth
@@ -34,7 +35,7 @@ namespace JWTAuth
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
             services.AddDbContext<ApplicationDbContext>(
                 options => options.UseNpgsql(Configuration.GetConnectionString("PostgresqlConnection")));
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -68,6 +69,11 @@ namespace JWTAuth
                     ValidAudience = Configuration["JWT:ValidAudience"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:SecretKey"]))
                 };
+            });
+
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+            {
+                options.TokenLifespan = TimeSpan.FromHours(2);
             });
 
             services.AddSwaggerGen(c =>

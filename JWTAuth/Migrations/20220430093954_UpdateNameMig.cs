@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace JWTAuth.Migrations
 {
-    public partial class NakNakDbFirst : Migration
+    public partial class UpdateNameMig : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -45,6 +45,32 @@ namespace JWTAuth.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Genders",
+                columns: table => new
+                {
+                    GenderId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Genders", x => x.GenderId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Hobbies",
+                columns: table => new
+                {
+                    HobbyId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Hobbies", x => x.HobbyId);
                 });
 
             migrationBuilder.CreateTable(
@@ -153,6 +179,51 @@ namespace JWTAuth.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Student",
+                columns: table => new
+                {
+                    StudentId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Firstname = table.Column<string>(type: "text", nullable: true),
+                    Lastname = table.Column<string>(type: "text", nullable: true),
+                    GenderId = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Student", x => x.StudentId);
+                    table.ForeignKey(
+                        name: "FK_Student_Gender",
+                        column: x => x.GenderId,
+                        principalTable: "Genders",
+                        principalColumn: "GenderId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StudentHobby",
+                columns: table => new
+                {
+                    StudentId = table.Column<int>(type: "integer", nullable: false),
+                    HobbyId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudentHobby", x => new { x.StudentId, x.HobbyId });
+                    table.ForeignKey(
+                        name: "FK_StudentHobby_Hobby",
+                        column: x => x.HobbyId,
+                        principalTable: "Hobbies",
+                        principalColumn: "HobbyId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StudentHobby_Student",
+                        column: x => x.StudentId,
+                        principalTable: "Student",
+                        principalColumn: "StudentId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -189,6 +260,16 @@ namespace JWTAuth.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Student_GenderId",
+                table: "Student",
+                column: "GenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentHobby_HobbyId",
+                table: "StudentHobby",
+                column: "HobbyId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -209,10 +290,22 @@ namespace JWTAuth.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "StudentHobby");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Hobbies");
+
+            migrationBuilder.DropTable(
+                name: "Student");
+
+            migrationBuilder.DropTable(
+                name: "Genders");
         }
     }
 }

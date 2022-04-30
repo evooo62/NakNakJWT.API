@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace JWTAuth.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220429131907_NakNakDbFirst")]
-    partial class NakNakDbFirst
+    [Migration("20220430093954_UpdateNameMig")]
+    partial class UpdateNameMig
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -83,6 +83,74 @@ namespace JWTAuth.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
+                });
+
+            modelBuilder.Entity("JWTAuth.Model.Gender", b =>
+                {
+                    b.Property<int>("GenderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("GenderId");
+
+                    b.ToTable("Genders");
+                });
+
+            modelBuilder.Entity("JWTAuth.Model.Hobby", b =>
+                {
+                    b.Property<int>("HobbyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("HobbyId");
+
+                    b.ToTable("Hobbies");
+                });
+
+            modelBuilder.Entity("JWTAuth.Model.Student", b =>
+                {
+                    b.Property<int>("StudentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Firstname")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("GenderId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Lastname")
+                        .HasColumnType("text");
+
+                    b.HasKey("StudentId");
+
+                    b.HasIndex("GenderId");
+
+                    b.ToTable("Student");
+                });
+
+            modelBuilder.Entity("JWTAuth.Model.StudentHobby", b =>
+                {
+                    b.Property<int>("StudentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("HobbyId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("StudentId", "HobbyId");
+
+                    b.HasIndex("HobbyId");
+
+                    b.ToTable("StudentHobby");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -215,6 +283,37 @@ namespace JWTAuth.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("JWTAuth.Model.Student", b =>
+                {
+                    b.HasOne("JWTAuth.Model.Gender", "Gender")
+                        .WithMany("Students")
+                        .HasForeignKey("GenderId")
+                        .HasConstraintName("FK_Student_Gender");
+
+                    b.Navigation("Gender");
+                });
+
+            modelBuilder.Entity("JWTAuth.Model.StudentHobby", b =>
+                {
+                    b.HasOne("JWTAuth.Model.Hobby", "Hobby")
+                        .WithMany("StudentHobbies")
+                        .HasForeignKey("HobbyId")
+                        .HasConstraintName("FK_StudentHobby_Hobby")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("JWTAuth.Model.Student", "Student")
+                        .WithMany("StudentHobbies")
+                        .HasForeignKey("StudentId")
+                        .HasConstraintName("FK_StudentHobby_Student")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hobby");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -264,6 +363,21 @@ namespace JWTAuth.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("JWTAuth.Model.Gender", b =>
+                {
+                    b.Navigation("Students");
+                });
+
+            modelBuilder.Entity("JWTAuth.Model.Hobby", b =>
+                {
+                    b.Navigation("StudentHobbies");
+                });
+
+            modelBuilder.Entity("JWTAuth.Model.Student", b =>
+                {
+                    b.Navigation("StudentHobbies");
                 });
 #pragma warning restore 612, 618
         }
