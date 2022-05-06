@@ -15,6 +15,7 @@ namespace JWTAuth.DbContext
         public DbSet<StudentHobby> StudentHobbies { get; set; }
         public DbSet<Gender> Genders { get; set; }
         public DbSet<Hobby> Hobbies { get; set; }
+        public DbSet<Document> Documents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -42,6 +43,21 @@ namespace JWTAuth.DbContext
               .WithMany(d => d.StudentHobbies)
               .HasForeignKey(d => d.HobbyId)
               .HasConstraintName("FK_StudentHobby_Hobby");
+
+
+            });
+
+            builder.Entity<Document>(entity =>
+            {
+                entity.ToTable("Document");
+
+                entity.Property(e => e.FileName)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+
+                entity.Property(e => e.ContentType)
+               .HasMaxLength(100)
+               .IsUnicode(false);
 
 
             });
